@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
+        .container { width: 100%; max-width: 400px; margin: 50px auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        form { display: flex; flex-direction: column; }
+        label { margin-top: 10px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="file"], select, textarea { padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        button { margin-top: 20px; padding: 10px; background: #5c6bc0; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #3949ab; }
+        .checkbox-group { margin-top: 5px; }
+        .checkbox-group label { font-weight: normal; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginUserTypeContainer">
+        <h2>Login and Select User Type</h2>
+        <form id="loginUserTypeForm" onsubmit="return submitLoginUserType()">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="userType">I am a:</label>
+            <select id="userType" name="userType" required>
+                <option value="">Select...</option>
+                <option value="student">Student Seeking Internship</option>
+                <option value="company">Company Providing Internship</option>
+            </select>
+            <button type="submit">Continue</button>
+        </form>
+    </div>
+
+    <div class="container" id="studentFormContainer" style="display:none">
+        <h2>Student Internship Details</h2>
+        <form id="studentForm" onsubmit="return submitStudentForm()" enctype="multipart/form-data">
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" name="studentName" required>
+            <label for="mark10">10th Mark (%):</label>
+            <input type="text" id="mark10" name="mark10" required>
+            <label for="mark12">12th Mark (%):</label>
+            <input type="text" id="mark12" name="mark12" required>
+            <label for="cutoff12">12th Cutoff (%):</label>
+            <input type="text" id="cutoff12" name="cutoff12" required>
+            <label for="progLang">Programming Languages Known:</label>
+            <input type="text" id="progLang" name="progLang" placeholder="e.g. Python, JavaScript" required>
+            <label for="skills">Other Skills:</label>
+            <input type="text" id="skills" name="skills" required>
+            <label for="studentImage">Upload Image:</label>
+            <input type="file" id="studentImage" name="studentImage" accept="image/*" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="container" id="companyFormContainer" style="display:none">
+        <h2>Company Internship Details</h2>
+        <form id="companyForm" onsubmit="return submitCompanyForm()">
+            <label for="companyName">Company Name:</label>
+            <input type="text" id="companyName" name="companyName" required>
+
+            <label>Type of Internship Provided:</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="internType" value="Web Development"> Web Development</label>
+                <label><input type="checkbox" name="internType" value="UI/UX Design"> UI/UX Design</label>
+                <label><input type="checkbox" name="internType" value="Mobile Development"> Mobile Development</label>
+                <label><input type="checkbox" name="internType" value="Startup"> Startup</label>
+                <label><input type="checkbox" name="internType" value="Data Science"> Data Science</label>
+                <label><input type="checkbox" name="internType" value="Marketing"> Marketing</label>
+                <label><input type="checkbox" name="internType" value="Other"> Other</label>
+            </div>
+
+            <label>Suitable For (Student Categories):</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="suitableFor" value="Computer Science"> Computer Science</label>
+                <label><input type="checkbox" name="suitableFor" value="Design"> Design</label>
+                <label><input type="checkbox" name="suitableFor" value="Business"> Business</label>
+                <label><input type="checkbox" name="suitableFor" value="Marketing"> Marketing</label>
+                <label><input type="checkbox" name="suitableFor" value="Electrical"> Electrical</label>
+                <label><input type="checkbox" name="suitableFor" value="Mechanical"> Mechanical</label>
+                <label><input type="checkbox" name="suitableFor" value="Other"> Other</label>
+            </div>
+
+            <label for="state">State:</label>
+            <select id="state" name="state" required onchange="populateDistricts()">
+                <option value="">Select State</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <!-- Add more states as needed -->
+            </select>
+
+            <label for="district">District:</label>
+            <select id="district" name="district" required>
+                <option value="">Select District</option>
+            </select>
+
+            <label for="otherDetails">Other Details:</label>
+            <textarea id="otherDetails" name="otherDetails" rows="4" placeholder="Additional info about internship..."></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    
+    <script>
+        const districtsByState = {
+            Maharashtra: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane'],
+            Karnataka: ['Bengaluru', 'Mysuru', 'Mangalore', 'Hubli'],
+            Delhi: ['New Delhi', 'North Delhi', 'South Delhi'],
+            'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai'],
+            'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Varanasi']
+            // Add more states and districts as needed
+        };
+
+        function populateDistricts() {
+            const stateSelect = document.getElementById('state');
+            const districtSelect = document.getElementById('district');
+            const selectedState = stateSelect.value;
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+            if (selectedState && districtsByState[selectedState]) {
+                districtsByState[selectedState].forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.text = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        }
+
+        function submitLoginUserType() {
+            var userType = document.getElementById('userType').value;
+            if (!userType) {
+                alert('Please select a user type.');
+                return false;
+            }
+            document.getElementById('loginUserTypeContainer').style.display = 'none';
+            if (userType === 'student') {
+                document.getElementById('studentFormContainer').style.display = 'block';
+            } else if (userType === 'company') {
+                document.getElementById('companyFormContainer').style.display = 'block';
+            }
+            return false;
+        }
+
+        function submitStudentForm() {
+            alert('Student details submitted successfully!');
+            return false;
+        }
+
+        function submitCompanyForm() {
+            alert('Company details submitted successfully!');
+            return false;
+        }
+    </script>
+</body>
+</html>
